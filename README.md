@@ -23,7 +23,7 @@ use CardDetective\CardProviderDetector\CardDetection\CardDetector;
 
 $cardNumber = '4111111111111111';
 $cardDetector = new CardDetector();
-$cardProvider = $cardDetector->detect($cardNumber);
+$cardProvider = $cardDetector->detectCardProvider($cardNumber);
 
 echo $cardProvider; // "Visa"
 ````
