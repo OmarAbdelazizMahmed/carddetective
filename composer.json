@@ -1,0 +1,22 @@
+{
+    "name": "carddetective/card-provider-detector",
+    "type": "library",
+    "description": "A PHP library to detect the card provider from a card number",
+    "license": "MIT License",
+    "autoload": {
+        "psr-4": {
+            "CardDetective\\CardProviderDetector\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Omar.Abdelaziz",
+            "email": "omarabdelaziz@protonmail.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {},
+    "require-dev": {
+        "phpunit/phpunit": "^9.5"
+    }
+}
