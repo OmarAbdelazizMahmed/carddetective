@@ -2,7 +2,7 @@
 
 namespace CardDetective\CardDetection\Tests;
 
-use CardDetective\CardProviderDetector\CardDetection\CardDetector;
+use CardDetective\CardProviderDetector\CardDetection\CardDetective;
 use PHPUnit\Framework\TestCase;
 
 class CardDetectorTest extends TestCase
@@ -11,7 +11,7 @@ class CardDetectorTest extends TestCase
 
     public function setUp() : void
     {
-        $this->cardDetector = new CardDetector();
+        $this->cardDetector = new CardDetective();
     }
 
     public function testVisa()

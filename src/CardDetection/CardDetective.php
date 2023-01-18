@@ -2,7 +2,7 @@
 
 namespace CardDetective\CardProviderDetector\CardDetection;
 
-class CardDetector
+class CardDetective
 {
     private $providers;
 
