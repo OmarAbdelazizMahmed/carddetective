@@ -10,7 +10,7 @@ class CardDetectiveServiceProvider extends ServiceProvider
 {
     public function register()
     {
-        $this->app->bind('card-detective', function () {
+        $this->app->bind('CardDetective', function () {
             return new CardDetector();
         });
     }
