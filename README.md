@@ -29,6 +29,67 @@ echo $cardProvider; // "Visa"
 ````
 The method will return the card provider name if the detection is successful, otherwise it will return `null`
 
+## Laravel Support
+
+The package supports Laravel 5.5 and above.
+
+To use the package with Laravel, you need to register the service provider and facade in the `config/app.php` file:
+
+````
+'providers' => [
+    // ...
+    CardDetective\CardProviderDetector\CardProviderDetectorServiceProvider::class,
+],
+
+'aliases' => [
+    // ...
+    'CardDetector' => CardDetective\CardProviderDetector\Facades\CardDetector::class,
+],
+````
+
+You can use the package by resolving it from the service container or by using the facade.
+
+Here is an example of how you can use the package by resolving it from the service container:
+
+````
+use App\CardDetective;
+
+class MyController extends Controller
+{
+    public function detect(CardDetective $detector)
+    {
+        $detector->detect(1234567812345678);
+    }
+}
+
+````
+
+Here is an example of how you can use the package by using the facade:
+
+````
+
+use CardDetective;
+
+class MyController extends Controller
+{
+    public function detect()
+    {
+        CardDetective::detect(1234567812345678);
+    }
+}
+
+````
+
+## Configuration
+
+The package comes with a default configuration file that contains the bin ranges and regular expressions for all supported card providers. You can publish the configuration file by running the following command:
+
+```
+php artisan vendor:publish --provider="CardDetective\CardProviderDetector\CardProviderDetectorServiceProvider"
+```
+
+
+
 ## Test
 
 The package also contains Unit tests for all supported card providers, to ensure that the detection is accurate and working properly.
