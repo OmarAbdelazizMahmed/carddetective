@@ -10,15 +10,8 @@ class CardDetectiveServiceProvider extends ServiceProvider
 {
     public function register()
     {
-        $this->app->bind('CardDetective', function () {
+        $this->app->bind('carddetective', function () {
             return new CardDetector();
         });
-    }
-
-    public function boot()
-    {
-        $this->publishes([
-            __DIR__.'/path/to/config/carddetective.php' => config_path('carddetective.php'),
-        ], 'config');
     }
 }
