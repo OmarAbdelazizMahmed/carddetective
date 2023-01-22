@@ -62,6 +62,12 @@ class CardDetectorTest extends TestCase
         $this->assertEquals('RuPay', $result);
     }
 
+    public function testUnionPay()
+    {
+        $result = $this->cardDetector->detectCardProvider('6282825624254001');
+        $this->assertEquals('UnionPay', $result);
+    }
+
     public function testUnknown()
     {
         $result = $this->cardDetector->detectCardProvider('1111111111111111');
