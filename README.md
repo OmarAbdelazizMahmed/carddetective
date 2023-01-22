@@ -94,12 +94,11 @@ php artisan vendor:publish --provider="CardDetective\CardProviderDetector\CardPr
 
 The package also contains Unit tests for all supported card providers, to ensure that the detection is accurate and working properly.
 
-To run the tests, execute the following command:
+To run the tests, you need to install the development dependencies by running the following command:
 
 ```
-composer test
+./vendor/bin/phpunit
 ```
-
 
 ## Intention
 
