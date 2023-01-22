@@ -38,12 +38,12 @@ To use the package with Laravel, you need to register the service provider and f
 ````
 'providers' => [
     // ...
-    CardDetective\CardProviderDetector\CardProviderDetectorServiceProvider::class,
+    CardDetective\CardProviderDetector\Providers\CardDetectiveServiceProvider::class,
 ],
 
 'aliases' => [
     // ...
-    'CardDetector' => CardDetective\CardProviderDetector\Facades\CardDetector::class,
+    'CardDetective' => CardDetective\CardProviderDetector\Facades\CardDetective::class,
 ],
 ````
 
