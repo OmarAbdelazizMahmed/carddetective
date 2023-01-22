@@ -22,8 +22,9 @@ class CardDetective
         ];
     }
 
-    public function detectCardProvider(string $firstSixDigits): string
+    public function detectCardProvider(string $cardNumber): string
     {
+        $firstSixDigits = substr($cardNumber, 0, 6);
         $cardProvider = 'Unknown';
         foreach ($this->providers as $provider) {
             if (preg_match($provider['regex'], $firstSixDigits)) {
