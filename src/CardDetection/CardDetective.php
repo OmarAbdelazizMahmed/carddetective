@@ -19,6 +19,7 @@ class CardDetective
             ['regex' => '/^(?:2131|1800|35)[0-9]{0,}$/', 'name' => 'JCB'],
             ['regex' => '/^(6011|65|64[4-9]|62212[6-9]|6221[3-9]|622[2-8]|6229[01]|62292[0-5])[0-9]{0,}$/', 'name' => 'Discover'],
             ['regex' => '/^(5[06789]|6)[0-9]{0,}$/', 'name' => 'Maestro'],
+            
         ];
     }
 
@@ -34,4 +35,23 @@ class CardDetective
         }
         return $cardProvider;
     }
+
+    public function isCardNumberValid(string $cardNumber): bool
+    {
+        $sum = 0;
+        $length = strlen($cardNumber);
+        $parity = $length % 2;
+        for ($i = 0; $i < $length; $i++) {
+            $digit = $cardNumber[$i];
+            if ($i % 2 == $parity) {
+                $digit *= 2;
+                if ($digit > 9) {
+                    $digit -= 9;
+                }
+            }
+            $sum += $digit;
+        }
+        return ($sum % 10) == 0;
+    }
+        
 }
