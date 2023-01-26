@@ -73,4 +73,28 @@ class CardDetectorTest extends TestCase
         $result = $this->cardDetector->detectCardProvider('1111111111111111');
         $this->assertEquals('Unknown', $result);
     }
+
+    public function testCardNumberWithSpaces()
+    {
+        $result = $this->cardDetector->detectCardProvider('4111 1111 1111 1111');
+        $this->assertEquals('Visa', $result);
+    }
+
+    public function testCardNumberWithHyphens()
+    {
+        $result = $this->cardDetector->detectCardProvider('4111-1111-1111-1111');
+        $this->assertEquals('Visa', $result);
+    }
+
+    public function testCardNumberWithSpacesAndHyphens()
+    {
+        $result = $this->cardDetector->detectCardProvider('4111 1111-1111 1111');
+        $this->assertEquals('Visa', $result);
+    }
+
+    public function testCardNumberWithSpacesAndHyphensAndLetters()
+    {
+        $result = $this->cardDetector->detectCardProvider('4111 1111-1111 1111 1111');
+        $this->assertEquals('Visa', $result);
+    }
 }

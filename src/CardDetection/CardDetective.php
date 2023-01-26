@@ -26,6 +26,7 @@ class CardDetective
 
     public function detectCardProvider(string $cardNumber): string
     {
+        $cardNumber = preg_replace('/[^0-9]/', '', $cardNumber);
         $firstSixDigits = substr($cardNumber, 0, 6);
         $cardProvider = 'Unknown';
         foreach ($this->providers as $provider) {
