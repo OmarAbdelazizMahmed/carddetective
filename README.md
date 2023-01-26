@@ -58,7 +58,7 @@ class MyController extends Controller
 {
     public function detect(CardDetective $detector)
     {
-        $detector->detectCardProvider(1234567812345678);
+        $detector->detectCardProvider('1234567812345678');
     }
 }
 
@@ -74,7 +74,7 @@ class MyController extends Controller
 {
     public function detect()
     {
-        CardDetective::detectCardProvider(1234567812345678);
+        CardDetective::detectCardProvider('1234567812345678');
     }
 }
 
