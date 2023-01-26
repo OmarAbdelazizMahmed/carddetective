@@ -80,6 +80,26 @@ class MyController extends Controller
 
 ````
 
+## Support masking of card numbers
+
+The package also supports masking of card numbers. This is useful when you need to display the card number to the user, but you don't want to display the full card number. The package can be used to mask the card number by passing the card number to the `maskCardNumber` method.
+
+Here is an example of how you can use the package to mask a card number:
+
+````
+use CardDetective;
+
+class MyController extends Controller
+{
+    public function mask()
+    {
+        CardDetective::maskCardNumber('1234567812345678');
+    }
+}
+
+````
+
+
 ## Configuration
 
 The package comes with a default configuration file that contains the bin ranges and regular expressions for all supported card providers. You can publish the configuration file by running the following command:
