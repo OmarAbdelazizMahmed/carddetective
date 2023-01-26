@@ -55,5 +55,21 @@ class CardDetective
         }
         return ($sum % 10) == 0;
     }
+
+
+    public function maskCardNumber(string $cardNumber): string
+    {
+        $cardNumber = preg_replace('/[^0-9]/', '', $cardNumber);
+        $length = strlen($cardNumber);
+        $maskedCardNumber = '';
+        for ($i = 0; $i < $length; $i++) {
+            if ($i < 4 || $i > $length - 5) {
+                $maskedCardNumber .= $cardNumber[$i];
+            } else {
+                $maskedCardNumber .= '*';
+            }
+        }
+        return $maskedCardNumber;
+    }
         
 }

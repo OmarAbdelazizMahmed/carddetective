@@ -97,4 +97,10 @@ class CardDetectorTest extends TestCase
         $result = $this->cardDetector->detectCardProvider('4111 1111-1111 1111 1111');
         $this->assertEquals('Visa', $result);
     }
+
+    public function testMasterCardWith16Digits()
+    {
+        $result = $this->cardDetector->maskCardNumber('5555555555554444');
+        $this->assertEquals('5555********4444', $result);
+    }
 }
