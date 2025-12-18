@@ -2,74 +2,130 @@
 
 namespace CardDetective\CardProviderDetector\CardDetection;
 
-class CardDetective
-{
-    private $providers;
+use CardDetective\CardProviderDetector\Contracts\CardDetectorInterface;
+use CardDetective\CardProviderDetector\DTO\CardInfo;
+use CardDetective\CardProviderDetector\Exceptions\InvalidCardNumberException;
+use CardDetective\CardProviderDetector\Factories\CardInfoFactory;
+use CardDetective\CardProviderDetector\Repositories\CardProviderRepository;
+use CardDetective\CardProviderDetector\Services\CardValidationService;
 
-    /**
-     * CardDetector constructor.
-     */
-    public function __construct()
-    {
-        $this->providers = [
-            ['regex' => '/^4[0-9]{0,}$/', 'name' => 'Visa'],
-            ['regex' => '/^(5[1-5]|222[1-9]|22[3-9]|2[3-6]|27[01]|2720)[0-9]{0,}$/', 'name' => 'MasterCard'],
-            ['regex' => '/^3[47][0-9]{0,}$/', 'name' => 'American Express'],
-            ['regex' => '/^3(?:0[0-59]{1}|[689])[0-9]{0,}$/', 'name' => 'Diners Club'],
-            ['regex' => '/^(?:2131|1800|35)[0-9]{0,}$/', 'name' => 'JCB'],
-            ['regex' => '/^(6011|65|64[4-9]|62212[6-9]|6221[3-9]|622[2-8]|6229[01]|62292[0-5])[0-9]{0,}$/', 'name' => 'Discover'],
-            ['regex' => '/^(60|65)(?=[0-9]{4})(?:[0-9]{0,})$/', 'name' => 'RuPay'],
-            ['regex' => '/^(62|88)(?=[0-9]{4})(?:[0-9]{0,})$/', 'name' => 'UnionPay'],
-            ['regex' => '/^(5[06789]|6)[0-9]{0,}$/', 'name' => 'Maestro'],
-        ];
+class CardDetective implements CardDetectorInterface
+{
+    private CardProviderRepository $providerRepository;
+
+    private CardInfoFactory $cardInfoFactory;
+
+    private CardValidationService $validationService;
+
+    public function __construct(
+        ?CardProviderRepository $providerRepository = null,
+        ?CardInfoFactory $cardInfoFactory = null,
+        ?CardValidationService $validationService = null
+    ) {
+        $this->providerRepository = $providerRepository ?? new CardProviderRepository;
+        $this->validationService = $validationService ?? new CardValidationService;
+        $this->cardInfoFactory = $cardInfoFactory ?? new CardInfoFactory($this->validationService);
     }
 
     public function detectCardProvider(string $cardNumber): string
     {
-        $cardNumber = preg_replace('/[^0-9]/', '', $cardNumber);
-        $firstSixDigits = substr($cardNumber, 0, 6);
-        $cardProvider = 'Unknown';
-        foreach ($this->providers as $provider) {
-            if (preg_match($provider['regex'], $firstSixDigits)) {
-                $cardProvider = $provider['name'];
-                break;
-            }
+        $this->validateCardNumber($cardNumber);
+
+        $provider = $this->providerRepository->findProviderByCardNumber($cardNumber);
+
+        return $provider ? $provider->getName() : 'Unknown';
+    }
+
+    public function getCardInfo(string $cardNumber): CardInfo
+    {
+        $this->validateCardNumber($cardNumber);
+
+        $provider = $this->providerRepository->findProviderByCardNumber($cardNumber);
+
+        if ($provider) {
+            return $this->cardInfoFactory->createFromProvider($provider, $cardNumber);
         }
-        return $cardProvider;
+
+        return $this->cardInfoFactory->createUnknownCard($cardNumber);
     }
 
     public function isCardNumberValid(string $cardNumber): bool
     {
-        $sum = 0;
-        $length = strlen($cardNumber);
-        $parity = $length % 2;
-        for ($i = 0; $i < $length; $i++) {
-            $digit = $cardNumber[$i];
-            if ($i % 2 == $parity) {
-                $digit *= 2;
-                if ($digit > 9) {
-                    $digit -= 9;
-                }
-            }
-            $sum += $digit;
-        }
-        return ($sum % 10) == 0;
+        return $this->validationService->validate($cardNumber);
     }
 
-
-    public function maskCardNumber(string $cardNumber): string
+    public function maskCardNumber(string $cardNumber, string $maskChar = '*'): string
     {
-        $cardNumber = preg_replace('/[^0-9]/', '', $cardNumber);
-        $length = strlen($cardNumber);
-        $maskedCardNumber = '';
-        for ($i = 0; $i < $length; $i++) {
-            if ($i < 4 || $i > $length - 5) {
-                $maskedCardNumber .= $cardNumber[$i];
-            } else {
-                $maskedCardNumber .= '*';
-            }
+        $this->validateCardNumber($cardNumber);
+
+        $cleanedNumber = preg_replace('/\D/', '', $cardNumber);
+        $length = strlen($cleanedNumber);
+
+        if ($length <= 8) {
+            return str_repeat($maskChar, $length);
         }
-        return $maskedCardNumber;
+
+        $firstFour = substr($cleanedNumber, 0, 4);
+        $lastFour = substr($cleanedNumber, -4);
+        $middleMasked = str_repeat($maskChar, $length - 8);
+
+        return $firstFour.$middleMasked.$lastFour;
     }
-        
+
+    public function formatCardNumber(string $cardNumber, string $separator = ' '): string
+    {
+        $this->validateCardNumber($cardNumber);
+
+        $cleaned = preg_replace('/\D/', '', $cardNumber);
+        $length = strlen($cleaned);
+
+        if ($length <= 4) {
+            return $cleaned;
+        }
+
+        $formatted = '';
+        for ($i = 0; $i < $length; $i += 4) {
+            $chunk = substr($cleaned, $i, 4);
+            if ($i > 0) {
+                $formatted .= $separator;
+            }
+            $formatted .= $chunk;
+        }
+
+        return $formatted;
+    }
+
+    public function isValidSecurityCode(string $cardNumber, string $securityCode): bool
+    {
+        $this->validateCardNumber($cardNumber);
+
+        return $this->validationService->validateSecurityCode($cardNumber, $securityCode);
+    }
+
+    public function isValidExpiryDate(string $month, string $year): bool
+    {
+        return $this->validationService->validateExpiryDate($month, $year);
+    }
+
+    public function getSupportedProviders(): array
+    {
+        return $this->providerRepository->getProviderNames();
+    }
+
+    public function isProviderSupported(string $providerName): bool
+    {
+        return $this->providerRepository->isProviderSupported($providerName);
+    }
+
+    private function validateCardNumber(string $cardNumber): void
+    {
+        if (empty($cardNumber)) {
+            throw new InvalidCardNumberException('Card number cannot be empty');
+        }
+
+        $cleanedNumber = preg_replace('/\D/', '', $cardNumber);
+        if (strlen($cleanedNumber) < 4) {
+            throw new InvalidCardNumberException('Card number is too short');
+        }
+    }
 }
